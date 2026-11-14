@@ -18,6 +18,14 @@ jobs:
           test -s SoundDept_KAOS_PAD_v08_GitHub_Source.zip
           unzip -o SoundDept_KAOS_PAD_v08_GitHub_Source.zip -d .
           test -s app/src/main/assets/index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/src/main/java/com/sounddept/kaospad/MainActivity.java")
+          s = p.read_text()
+          old = "if(opened!=null)opened.close();"
+          assert old in s, "expected MIDI close statement not found"
+          p.write_text(s.replace(old,"if(opened!=null)try{opened.close();}catch(Exception ignored){}"))
+          PY
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
